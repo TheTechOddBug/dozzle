@@ -28,6 +28,7 @@ declare global {
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
   const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
+  const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
   const createDrawer: typeof import('./composable/drawer').createDrawer
   const createEventHints: typeof import('./composable/exprEditor').createEventHints
   const createEventHook: typeof import('@vueuse/core').createEventHook
@@ -468,6 +469,7 @@ declare module 'vue' {
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
+    readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
     readonly createDrawer: UnwrapRef<typeof import('./composable/drawer')['createDrawer']>
     readonly createEventHints: UnwrapRef<typeof import('./composable/exprEditor')['createEventHints']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
@@ -577,7 +579,6 @@ declare module 'vue' {
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
-    readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
