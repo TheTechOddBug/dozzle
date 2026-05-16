@@ -172,7 +172,7 @@ On Windows, we recommend using [WSL2](https://learn.microsoft.com/en-us/windows/
 git clone https://github.com/amir20/dozzle.git
 cd dozzle
 pnpm install                # installs frontend dependencies
-go install tool             # installs Go build tools listed in go.mod (gqlgen, protoc-gen-go, etc.)
+go install tool             # installs Go build tools listed in go.mod (air, protoc-gen-go, etc.)
 make generate               # generates TLS certificates and protobuf code (only needed once)
 ```
 

@@ -126,8 +126,8 @@ The Go backend is organized into these key packages:
 
 - **`internal/support/`** - Support utilities
   - `cli/`: Command-line argument parsing and validation
-  - `docker/`: Multi-host Docker management and Swarm support
-  - `container/`: Container service abstractions
+  - `docker/`: Multi-host Docker management and Swarm support (`docker_service.go`, client managers)
+  - `k8s/`: Kubernetes service abstractions
   - `web/`: Web service utilities
 
 - **`internal/auth/`** - Authentication providers
@@ -142,10 +142,6 @@ The Go backend is organized into these key packages:
   - `manager.go`: Notification rule evaluation and dispatching
   - `log_listener.go`: Log pattern matching for alerts
   - `dispatcher/`: Notification channel implementations (email, webhook, etc.)
-
-- **`graph/`** - GraphQL API layer
-  - `schema.graphqls`: GraphQL schema definitions
-  - `*.resolvers.go`: GraphQL resolver implementations
 
 - **`main.go`** - Application entry point with mode switching (server/swarm/k8s/agent)
 
@@ -207,7 +203,6 @@ The frontend uses file-based routing with these conventions:
 3. **Stats**: Real-time CPU/memory stats streamed via SSE alongside events
 4. **Actions**: POST to `/api/hosts/{host}/containers/{id}/actions/{action}` (start/stop/restart)
 5. **Terminal**: WebSocket connections for container attach/exec at `/api/hosts/{host}/containers/{id}/attach`
-6. **GraphQL**: POST to `/api/graphql` for queries and mutations (container metadata, historical logs, notifications)
 
 ### Build System
 
@@ -245,9 +240,6 @@ The frontend uses file-based routing with these conventions:
 - Certificate generation is required (`make generate` creates shared_key.pem and shared_cert.pem)
 - Protocol buffer generation happens via `go generate` directive in `main.go`
 - Docker client uses API version negotiation for compatibility
-- **GraphQL API**: Uses gqlgen with schema in `graph/schema.graphqls`, generated code in `graph/generated.go`
-  - Run `pnpm codegen` to regenerate GraphQL types
-  - Resolvers follow-schema layout in `graph/*.resolvers.go`
 - **Service Layer Architecture**:
   - `ClientService` interface abstracts Docker/K8s/Agent backends
   - `MultiHostService` orchestrates multi-host operations
@@ -315,7 +307,7 @@ Implementation (DockerClient, K8sClient, AgentClient)
 
 1. Define method in `container.Client` interface (`internal/container/client.go`)
 2. Implement in `internal/docker/client.go` (and `internal/k8s/client.go` if applicable)
-3. Add wrapper method in `ClientService` interface (`internal/support/container/service.go`)
+3. Add wrapper method in `ClientService` interface (`internal/support/docker/docker_service.go`)
 4. Add HTTP handler in `internal/web/` with appropriate route
 
 ### Frontend Data Flow
@@ -395,14 +387,6 @@ Implementation (DockerClient, K8sClient, AgentClient)
 4. Use `LogViewer.vue` component to render messages
 5. Add backend API endpoint if needed (see above)
 
-### Adding a New GraphQL Query/Mutation
-
-1. Define in `graph/schema.graphqls`
-2. Run `pnpm codegen` to regenerate types
-3. Implement resolver in `graph/schema.resolvers.go`
-4. Use `hostService` from resolver context to access backend services
-5. Frontend calls via urql client (auto-imported via `@urql/vue`)
-
 ### Adding Container Stats/Metrics
 
 1. Add field to `Stat` type in `internal/container/types.go`
@@ -424,7 +408,7 @@ Implementation (DockerClient, K8sClient, AgentClient)
 **Frontend** (`assets/pages/notifications.vue`, `assets/components/Notification/`):
 
 - `AlertForm.vue`, `DestinationForm.vue`: UI for creating rules
-- Rules stored via GraphQL mutations
+- Rules persisted to `./data/notifications.yml` via `internal/notification/persist.go`
 - Alert state displayed in notification cards
 
 **Adding a new notification channel:**
@@ -432,7 +416,6 @@ Implementation (DockerClient, K8sClient, AgentClient)
 1. Implement dispatcher interface in `internal/notification/dispatcher/`
 2. Register in `manager.go` dispatcher factory
 3. Add UI form in `assets/components/Notification/DestinationForm.vue`
-4. Add GraphQL schema fields if needed
 
 ### Adding a New Cloud Tool
 
@@ -465,5 +448,4 @@ Implementation (DockerClient, K8sClient, AgentClient)
 
 - Backend logs: Set `--level debug` flag or `DOZZLE_LEVEL=debug` env var
 - Frontend: Vue DevTools browser extension
-- GraphQL: Use GraphQL Playground at `/api/graphql` (when enabled)
 - SSE streams: Browser DevTools Network tab shows EventSource connections
